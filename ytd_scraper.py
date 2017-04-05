@@ -5,12 +5,7 @@ from bs4 import BeautifulSoup
 import sys
 import re
 import pickle
-from itertools import zip_longest
 
-# Nicked from http://stackoverflow.com/a/434411
-def grouper(iterable, n, fillvalue=None):
-    args = [iter(iterable)] * n
-    return zip_longest(*args, fillvalue=fillvalue)
 
 print("Bleep Bloop, UNLPD Year-to-Date Scraper Started!")
 
@@ -102,23 +97,16 @@ hate_crimes = hate_crimes.find_all("span")
 hate_crimes_split = [hate_crimes[x:x+4] for x in range(0, len(hate_crimes),4)]
 
 for entry in hate_crimes_split:
-    #print(entry)
-    #for thing in entry:
-#        print(thing)
 
-    test = "".join(str(item) for item in entry)
-    #print("\nString searched: ")
-    #print(test)
-    #print("\n")
-    entry_2 = BeautifulSoup(test, "lxml")
+    joined_entry = "".join(str(item) for item in entry)
+
+    searchable = BeautifulSoup(joined_entry, "lxml")
+    
     stat_entry_dict = {}
-    category = entry_2.find("span", id=re.compile('Category$')).text
-    #print(category)
-    bias = entry_2.find("span", id=re.compile('Bias$')).text
-    #print(bias)
-    count = entry_2.find("span", id=re.compile('Count$')).text
-    #print(count)
-    #print("\n")
+
+    category = searchable.find("span", id=re.compile('Category$')).text
+    bias = searchable.find("span", id=re.compile('Bias$')).text
+    count = searchable.find("span", id=re.compile('Count$')).text
 
     stat_entry_dict["category"] = category
     stat_entry_dict["bias"] = bias
