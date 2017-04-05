@@ -5,6 +5,12 @@ from bs4 import BeautifulSoup
 import sys
 import re
 import pickle
+from itertools import zip_longest
+
+# Nicked from http://stackoverflow.com/a/434411
+def grouper(iterable, n, fillvalue=None):
+    args = [iter(iterable)] * n
+    return zip_longest(*args, fillvalue=fillvalue)
 
 print("Bleep Bloop, UNLPD Year-to-Date Scraper Started!")
 
@@ -83,3 +89,48 @@ for entry in arrest_table.find_all("tr")[1:]:
 
 # Save arrest stats to pickle file
 pickle.dump(arrest_stats_out, open("data/arrest_stats_ytd.p", "wb"))
+
+print("\nReported Hate Crimes:")
+hate_crimes = soup.find("div", {"id": "ctl00_ContentPlaceHolder1_HateCrimesSection"})
+# arrest_table = arrest_stats.find_all("div")
+
+# Stats table that will be saved to pickle file
+hate_crimes_out = []
+
+hate_crimes = hate_crimes.find_all("span")
+
+hate_crimes_split = [hate_crimes[x:x+4] for x in range(0, len(hate_crimes),4)]
+
+for entry in hate_crimes_split:
+    #print(entry)
+    #for thing in entry:
+#        print(thing)
+
+    test = "".join(str(item) for item in entry)
+    #print("\nString searched: ")
+    #print(test)
+    #print("\n")
+    entry_2 = BeautifulSoup(test, "lxml")
+    stat_entry_dict = {}
+    category = entry_2.find("span", id=re.compile('Category$')).text
+    #print(category)
+    bias = entry_2.find("span", id=re.compile('Bias$')).text
+    #print(bias)
+    count = entry_2.find("span", id=re.compile('Count$')).text
+    #print(count)
+    #print("\n")
+
+    stat_entry_dict["category"] = category
+    stat_entry_dict["bias"] = bias
+    stat_entry_dict["count"] = int(count)
+
+    print("\nCategory: {}".format(stat_entry_dict["category"]))
+    print("Bias: {}".format(stat_entry_dict["bias"]))
+    print("Count: {}".format(stat_entry_dict["count"]))
+
+
+    # Append to stats table
+    hate_crimes_out.append(stat_entry_dict)
+
+# Save hate crimes to pickle file
+pickle.dump(hate_crimes_out, open("data/hate_crimes_ytd.p", "wb"))
