@@ -36,7 +36,7 @@ for entry in crime_table.find_all("tr", id=re.compile('SubCategoryRow$')):
     non_campus = entry.find("span", id=re.compile('NonCampus$')).text
     public_property = entry.find("span", id=re.compile('PublicProperty$')).text
 
-    stat_entry_dict["sub_category"] = sub_category
+    stat_entry_dict["sub_category"] = sub_category.replace(":", "")
     stat_entry_dict["on_campus"] = int(on_campus)
     stat_entry_dict["on_campus_housing"] = int(on_campus_housing)
     stat_entry_dict["non_campus"] = int(non_campus)

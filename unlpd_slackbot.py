@@ -4,6 +4,7 @@ import random
 from slackclient import SlackClient
 import json
 import pickle
+from operator import itemgetter
 
 # starterbot's ID as an environment variable
 BOT_ID = os.environ.get("UNLPD_BOT_ID")
@@ -20,27 +21,104 @@ CRIME_COMMAND = "crime_stats"
 # instantiate Slack & Twilio clients
 slack_client = SlackClient(os.environ.get('UNLPD_SLACK_BOT_TOKEN'))
 
+# Bring in arrest stats data
 arrest_stats_data = pickle.load( open("data/arrest_stats_ytd.p", "rb" ))
 
+# Index entries
+for index, entry in enumerate(arrest_stats_data):
+    #print(index, entry)
+    entry["index"] = index
+
+# Sort, just in case
+arrest_stats_sorted = sorted(arrest_stats_data, key=itemgetter("index"))
+
+
+# Bring in crime stats data
+crime_stats_data = pickle.load( open("data/crime_stats_ytd.p", "rb" ))
+
+# Index entries
+for index, entry in enumerate(crime_stats_data):
+    #print(index, entry)
+    entry["index"] = index
+
+# Sort, just in case
+crime_stats_sorted = sorted(crime_stats_data, key=itemgetter("index"))
+
 def handle_command(command, channel):
-    print(command)
+    #print(command)
     """
         Receives commands directed at the bot and determines if they
         are valid commands. If so, then acts on the commands. If not,
         returns back what it needs for clarification.
     """
     response = "Not sure what you mean. Use the *" + HELP_COMMAND + \
-               "* to list possible commands."
+               "* command to list possible options."
     attachment = [{}]
     if command.startswith(LIST_COMMAND) or command.startswith(HELP_COMMAND):
         response = "Available commands:\n\tarrest_stats, crime_stats, fire_stats, hate_crimes, list, help"
     elif command.startswith(ARREST_COMMAND):
+        command_list = command.split()
 
-        response = "Usage: arrest_stats <option>\nPossible options:\n\t"
-        attachment = [{ "text":"Hopefully this works" }]
+        if len(command_list) == 1:
+            att_text = ""
+            for entry in arrest_stats_sorted:
+                att_text = att_text + "{}: {}\n".format(entry["index"], entry["sub_category"])
 
-        for entry in arrest_stats_data:
-            print()
+                response = "Usage: arrest_stats <category number>\nCategories available:"
+                attachment = [{ "text": att_text }]
+        else:
+            try:
+                input_index = int(command_list[1])
+            except:
+                response = "Invalid category number, try again."
+
+            if input_index > len(arrest_stats_sorted) - 1:
+                response = "Invalid category number, try again."
+            else:
+                selected_entry = arrest_stats_sorted[input_index]
+                on_campus = selected_entry["on_campus"]
+                sub_category = selected_entry["sub_category"]
+                on_campus_housing = selected_entry["on_campus_housing"]
+                non_campus = selected_entry["non_campus"]
+                public_property = selected_entry["public_property"]
+
+                response = "So far this year, there have been {} arrests for *{}*" \
+                " on campus, {} of which were in UNL housing.\n There were {}" \
+                " non-campus arrests, and {} on public property.".format(on_campus,\
+                 sub_category, on_campus_housing, non_campus, public_property)
+
+    elif command.startswith(CRIME_COMMAND):
+        command_list = command.split()
+
+        if len(command_list) == 1:
+            att_text = ""
+            for entry in crime_stats_sorted:
+                att_text = att_text + "{}: {}\n".format(entry["index"], entry["sub_category"])
+
+                response = "Usage: crime_stats <category number>\nCategories available:"
+                attachment = [{ "text": att_text }]
+        else:
+            try:
+                input_index = int(command_list[1])
+            except:
+                response = "Invalid category number, try again."
+
+            if input_index > len(crime_stats_sorted) - 1:
+                response = "Invalid category number, try again."
+            else:
+                selected_entry = crime_stats_sorted[input_index]
+                on_campus = selected_entry["on_campus"]
+                sub_category = selected_entry["sub_category"]
+                on_campus_housing = selected_entry["on_campus_housing"]
+                non_campus = selected_entry["non_campus"]
+                public_property = selected_entry["public_property"]
+
+                response = "So far this year, there have been {} crime reports for *{}*" \
+                " on campus, {} of which were in UNL housing.\n There were {}" \
+                " non-campus arrests, and {} on public property.".format(on_campus,\
+                 sub_category, on_campus_housing, non_campus, public_property)
+
+
 
     slack_client.api_call("chat.postMessage", channel=channel,
                           text=response, attachments=json.dumps(attachment), as_user=True)
