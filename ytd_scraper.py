@@ -156,4 +156,4 @@ for entry in fire_table.find_all("tr")[1:]:
     fire_stats_out.append(stat_entry_dict)
 
 # Save arrest stats to pickle file
-#pickle.dump(fire_stats_out, open("data/fire_stats_ytd.p", "wb"))
+pickle.dump(fire_stats_out, open("data/fire_stats_ytd.p", "wb"))
