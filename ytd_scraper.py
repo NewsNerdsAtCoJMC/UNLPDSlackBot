@@ -101,7 +101,7 @@ for entry in hate_crimes_split:
     joined_entry = "".join(str(item) for item in entry)
 
     searchable = BeautifulSoup(joined_entry, "lxml")
-    
+
     stat_entry_dict = {}
 
     category = searchable.find("span", id=re.compile('Category$')).text
@@ -122,3 +122,38 @@ for entry in hate_crimes_split:
 
 # Save hate crimes to pickle file
 pickle.dump(hate_crimes_out, open("data/hate_crimes_ytd.p", "wb"))
+
+print("\nOn-Campus Fire Statistics:")
+fire_stats = soup.find("div", {"id": "ctl00_ContentPlaceHolder1_FireStatisticsSection"})
+fire_table = fire_stats.find("table")
+
+# Stats table that will be saved to pickle file
+fire_stats_out = []
+for entry in fire_table.find_all("tr")[1:]:
+
+    stat_entry_dict = {}
+    location = entry.find("span", id=re.compile('BuildingName_Address$')).text
+    fire_count = entry.find("span", id=re.compile('FireCount$')).text
+    fire_number = entry.find("span", id=re.compile('FireNumber$')).text
+    fire_type_cause = entry.find("span", id=re.compile('FireType_CauseOfFire$')).text
+    injury_count = entry.find("span", id=re.compile('NumberOfInjuries$')).text
+    death_count = entry.find("span", id=re.compile('NumberOfDeaths$')).text
+    property_damage = entry.find("span", id=re.compile('PropertyDamage$')).text
+
+
+    stat_entry_dict["location"] = location
+    stat_entry_dict["fire_count"] = int(fire_count)
+    stat_entry_dict["fire_number"] = int(fire_number)
+    stat_entry_dict["fire_type_cause"] = fire_type_cause
+    stat_entry_dict["injury_count"] = int(injury_count)
+    stat_entry_dict["death_count"] = int(death_count)
+
+
+    print("\n")
+    for key, value in stat_entry_dict.items():
+        print("{}: {}".format(key, value))
+    # Append to stats table
+    fire_stats_out.append(stat_entry_dict)
+
+# Save arrest stats to pickle file
+#pickle.dump(fire_stats_out, open("data/fire_stats_ytd.p", "wb"))
