@@ -44,6 +44,10 @@ for index, entry in enumerate(crime_stats_data):
 # Sort, just in case
 crime_stats_sorted = sorted(crime_stats_data, key=itemgetter("index"))
 
+# Bring in hate crime data
+hate_crime_data = pickle.load(open("data/hate_crimes_ytd.p", "rb" ))
+
+
 def handle_command(command, channel):
     #print(command)
     """
@@ -119,6 +123,17 @@ def handle_command(command, channel):
                  sub_category, on_campus_housing, non_campus, public_property)
 
 
+    elif command.startswith(HATE_COMMAND):
+        response = ""
+        for entry in hate_crime_data:
+            if entry["count"] == 1:
+                response = response + "There was {} case of {} based hatred"\
+                " with a {} bias.\n".format(entry["count"], entry["category"],\
+                 entry["bias"])
+            else:
+                response = response + "There were {} cases of {} based hatred"\
+                " with a {} bias.\n".format(entry["count"], entry["category"],\
+                 entry["bias"])
 
     slack_client.api_call("chat.postMessage", channel=channel,
                           text=response, attachments=json.dumps(attachment), as_user=True)
