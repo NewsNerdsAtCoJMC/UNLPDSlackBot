@@ -48,6 +48,18 @@ crime_stats_sorted = sorted(crime_stats_data, key=itemgetter("index"))
 hate_crime_data = pickle.load(open("data/hate_crimes_ytd.p", "rb" ))
 
 
+# Bring in fire stats data
+fire_stats_data = pickle.load( open("data/fire_stats_ytd.p", "rb" ))
+
+# Index entries
+for index, entry in enumerate(fire_stats_data):
+    #print(index, entry)
+    entry["index"] = index
+
+# Sort, just in case
+fire_stats_sorted = sorted(fire_stats_data, key=itemgetter("index"))
+
+
 def handle_command(command, channel):
     #print(command)
     """
@@ -134,6 +146,41 @@ def handle_command(command, channel):
                 response = response + "There were {} cases of {} based hatred"\
                 " with a {} bias.\n".format(entry["count"], entry["category"],\
                  entry["bias"])
+
+
+    elif command.startswith(FIRE_COMMAND):
+        command_list = command.split()
+
+        if len(command_list) == 1:
+            att_text = ""
+            for entry in fire_stats_sorted:
+                att_text = att_text + "{}: {}, Case #{}\n".format(entry["index"], entry["location"], entry["fire_number"])
+
+                response = "Usage: fire_stats <fire number>\nFires available:"
+                attachment = [{ "text": att_text }]
+        else:
+            try:
+                input_index = int(command_list[1])
+            except:
+                response = "Invalid category number, try again."
+
+            if input_index > len(crime_stats_sorted) - 1:
+                response = "Invalid category number, try again."
+            else:
+                selected = fire_stats_sorted[input_index]
+                fire_count = selected["fire_count"]
+                fire_number = selected["fire_number"]
+                fire_type_cause = selected["fire_type_cause"]
+                injury_count = selected["injury_count"]
+                death_count = selected["death_count"]
+                location = selected["location"]
+
+                response = "So far this year, there have been {} fires at {}." \
+                "\nAt fire number {}, police records indicate there were {} " \
+                "injuries and {} deaths.".format(fire_count,  location, \
+                fire_number, injury_count, death_count)
+
+                attachment = [{ "title" : "Fire Type/Cause"}, {"text" : fire_type_cause}]
 
     slack_client.api_call("chat.postMessage", channel=channel,
                           text=response, attachments=json.dumps(attachment), as_user=True)
