@@ -1,0 +1,3 @@
+slackclient
+bs4
+lxml
