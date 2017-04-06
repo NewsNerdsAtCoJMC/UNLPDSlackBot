@@ -5,7 +5,7 @@ A Slack Bot that will respond with crime statistics from the University of Nebra
 1. Clone or download this repository
 2. Run `pip install -r requirements.txt`
 3. Create a new [Slack Bot User](https://my.slack.com/services/new/bot)
-4. Copy the newly generated API token somewhere safe. Do not share this anyone.
+4. Copy the newly generated API token somewhere safe. Do not share this with anyone.
 5. Run the following lines to set environment variables, replacing appropriate values:
 ```
 export BOT_NAME='BOT_USERNAME'
@@ -17,7 +17,7 @@ export UNLPD_SLACK_BOT_TOKEN='API_TOKEN'
 export UNLPD_BOT_ID='BOT_ID_FROM_STEP_6'
 export UNLPD_SLACK_BOT_TOKEN='API_TOKEN'
 ```
-8. Run `unlpd_slackbot.py`.
+8. Run `python unlpd_slackbot.py`.
 
 Note: If running the slackbot on a remote server, it's recommended to use a multiplexer like tmux or GNU screen.
 
