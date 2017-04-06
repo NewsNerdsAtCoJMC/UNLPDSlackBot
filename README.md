@@ -23,4 +23,4 @@ Note: If running the slackbot on a remote server, it's recommended to use a mult
 
 ## Updating Data
 
-The data files can be updated by runnin `python ytd_scraper.py`. It will go out and scrape [year-to-date statistics](https://scsapps.unl.edu/PoliceReports/ClerySummaryReport.aspx) from UNLPD.
+The data files can be updated by running `python ytd_scraper.py`. It will go out and scrape [year-to-date statistics](https://scsapps.unl.edu/PoliceReports/ClerySummaryReport.aspx) from UNLPD.
